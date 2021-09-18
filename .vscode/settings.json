@@ -1,0 +1,7 @@
+{
+  "python.linting.pylintEnabled": true,
+  "python.linting.pylintArgs": [
+    "--enabled=F,E,W",
+    "--disable=no-absolute-import"
+  ]
+}

@@ -1,0 +1,25 @@
+# configuration specific to creating s3 connections
+s3:
+  source_endpoint_url: "https://s3.amazonaws.com"
+  source_bucket: "deutsche-boerse-xetra-pds"
+  target_endpoint_url: "https://s3.amazonaws.com"
+  target_bucket: "xetra-report"
+
+# Logging configuration
+logging:
+  version: 1
+  formatters:
+    xetra:
+      format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  handlers:
+    # console:
+    #   class: logging.StreamHandler
+    #   formatter: xetra
+    #   level: DEBUG
+    file:
+      class: logging.handlers.WatchedFileHandler
+      formatter: xetra
+      filename: xetra-jobs.log
+  root:
+    level: DEBUG
+    handlers: [file]
