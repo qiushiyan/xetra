@@ -19,8 +19,8 @@ def dates_to_strs(dates, date_format):
 def list_dates(input_date, date_format, single_day):
     """list a series of workdays after an input date
 
-    :param input_date: the start date
-    :param date format: date format codes
+    :param input_date: tart date
+    :param date_format: date format codes
     :param: if true, only return the previous workday and the start date
 
     returns:

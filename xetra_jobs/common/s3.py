@@ -14,7 +14,8 @@ class S3BucketConnector:
     """
 
     def __init__(self, access_key: str, secret_access_key: str, endpoint_url: str, bucket: str):
-        """Constructor for S3BucketConnector
+        """
+        Constructor for S3BucketConnector
 
         :param access_key: access key for accessing S3
         :param secret_key: secret key for accessing S3
@@ -63,6 +64,27 @@ class S3BucketConnector:
                 df = pd.DataFrame(columns=columns)
         except:
             df = pd.DataFrame(columns=columns)
+        return df
+
+    def read_objects(self, input_date: str, date_format: str):
+        """
+        get all day's objects into a dataframe
+        start from a date
+
+        :param input_date: start date
+        :param date_format: date format codes
+
+        returns:
+            a dataframe concatting all day' objects
+        """
+
+        all_keys = []
+        dates = list_dates(input_date, date_format, single_day=True)
+        for date in dates:
+            for key in self.list_keys_by_date_prefix(self._bucket, date):
+                all_keys.append(key)
+        df = pd.concat([self.read_object(self._bucket, key)
+                        for key in all_keys], ignore_index=True)
         return df
 
     def write_s3(self, df: pd.DataFrame, key: str, file_format: str):
