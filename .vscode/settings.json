@@ -3,5 +3,6 @@
   "python.linting.pylintArgs": [
     "--enabled=F,E,W",
     "--disable=no-absolute-import"
-  ]
+  ],
+  "python.linting.enabled": true
 }

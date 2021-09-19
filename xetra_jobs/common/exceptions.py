@@ -4,7 +4,6 @@
 class BaseXetraException(Exception):
     pass
 
-
 class BucketNotFoundException(Exception):
     """
     exception that can be raised when s3 bucket not found
