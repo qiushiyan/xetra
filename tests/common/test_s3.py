@@ -7,7 +7,9 @@ import boto3
 from moto import mock_s3
 from xetra_jobs.common.s3 import S3BucketConnector
 from xetra_jobs.common.exceptions import WrongFileFormatException
+from datetime import datetime, timedelta
 import pandas as pd
+import yaml
 
 
 @mock_s3
@@ -32,6 +34,10 @@ class TestS3BucketConnector(unittest.TestCase):
                                                   self.secret_access_key,
                                                   self.endpoint_url,
                                                   self.bucket_name)
+        # attatch config file
+        with open("./configs/config.yaml") as f:
+            config = yaml.safe_load(f)
+        self._config = config
 
     def tearDown(self):
         for key in self.bucket.objects.all():
@@ -156,6 +162,25 @@ class TestS3BucketConnector(unittest.TestCase):
                 self.bucket_connector.write_s3(df, key, file_format)
             # log test after method execution
             self.assertIn(log_expected, log.output[0])
+
+    def test_list_existing_dates(self):
+        """
+        test list_existing_dates returns correct date list
+        """
+
+        prefix = self._config["target"]["trg_prefix"]
+        date1 = datetime.today().strftime("%Y-%m-%d")
+        date2 = (datetime.today() - timedelta(1)).strftime("%Y-%m-%d")
+        csv_content = """col1, col2
+        valA, ValB
+        """
+        key1 = f"{prefix}/{date1}.csv"
+        key2 = f"{prefix}/{date2}.csv"
+        self.bucket.put_object(Body=csv_content, Key=key1)
+        self.bucket.put_object(Body=csv_content, Key=key2)
+        # method execution
+        dates_result = self.bucket_connector.list_existing_target_dates()
+        self.assertEqual(set([date1, date2]), set(dates_result))
 
 
 if __name__ == "__main__":

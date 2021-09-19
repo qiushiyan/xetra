@@ -1,1 +1,1 @@
-# xetra: a trading data ETL pipline
+# xetra_jobs: a trading data ETL pipline

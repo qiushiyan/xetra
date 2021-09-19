@@ -24,7 +24,7 @@ def list_dates(input_date, date_format, single_day):
     :param: if true, only return the previous workday and the start date
 
     returns:
-        all workdays after the start date, the day prior to start date will also be included to calculate growth
+        a list of all workdays after the start date, the day prior to start date will also be included to calculate growth
     """
 
     input_date = str_to_date(input_date, date_format)

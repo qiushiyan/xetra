@@ -6,6 +6,8 @@ import pandas as pd
 from io import StringIO, BytesIO
 from xetra_jobs.common.constants import S3FileFormats
 from xetra_jobs.common.exceptions import WrongFileFormatException
+import yaml
+import re
 
 
 class S3BucketConnector:
@@ -46,7 +48,14 @@ class S3BucketConnector:
 
     def read_object(self, key, columns, decoding="utf-8"):
         """
-        reads in an s3 object as dataframe
+        read in an s3 object csv file as dataframe
+
+        :param key: s3 object key
+        :param columns: columns to select from csv, passed to pd.read_csv(usecols)
+        :param decoding: decoding codes, default to utf-8
+
+        returns:
+            a pandas dataframe
         """
         self._logger.info(
             f'Reading file {self.endpoint_url}/{self._bucket.name}/{key}')
@@ -87,9 +96,30 @@ class S3BucketConnector:
                         for key in all_keys], ignore_index=True)
         return df
 
+    def list_existing_target_dates(self):
+        """
+        list dates whose xetra data has been loaded to s3 (in target bucket)
+
+        returns:
+            a list of dates, without target prefix
+        """
+        with open("./configs/config.yaml") as f:
+            config = yaml.safe_load(f)
+
+        trg_prefix = config["target"]["trg_prefix"]
+        existing_keys = [
+            obj.key for obj in self._bucket.objects.filter(Prefix=trg_prefix)]
+        existing_dates = []
+        for key in existing_keys:
+            m = re.search(r'(\d+-\d+-\d+)', key)
+            date = m.group(1)
+            if date not in existing_dates:
+                existing_dates.append(date)
+        return existing_dates
+
     def write_s3(self, df: pd.DataFrame, key: str, file_format: str):
         """
-        writing a Pandas DataFrame to S3
+        write a dataframe to S3
         supported formats: .csv, .parquet
 
         :param df: the dataframe that should be written
@@ -114,7 +144,7 @@ class S3BucketConnector:
 
     def _put_object(self, out_buffer: StringIO or BytesIO, key: str):
         """
-        Helper function for self.write_df_to_s3()
+        Helper function for writing to s3
 
         :param out_buffer: output buffer, BytesIO for parquet, and StringIO for csv
         :param key: target key of the saved file
