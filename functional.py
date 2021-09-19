@@ -37,12 +37,12 @@ def list_dates(input_date, date_format=date_format, single_day=True):
         back_days = timedelta(1)
     prev_input_date = input_date - back_days
     if single_day:
-        return dates_to_strs([prev_input_date, input_date])
+        return dates_to_strs([prev_input_date, input_date], date_format)
     else:
         today = datetime.today()
         dates = [(prev_input_date + timedelta(days=x)) for x in range(0, (today -
                                                                           prev_input_date).days + 1) if is_weekday((prev_input_date + timedelta(days=x)))]
-        return dates_to_strs(dates)
+        return dates_to_strs(dates, date_format)
 
 
 def list_keys_by_date_prefix(bucket, date_prefix):
@@ -69,7 +69,7 @@ def csv_to_df(bucket, key, decoding="utf-8", columns=columns):
 
 
 def df_to_s3(bucket, df, key):
-    out_buffer = StringIO()
+    out_buffer = BytesIO()
     df.to_parquet(out_buffer, index=False)
     bucket.put_object(Body=out_buffer.getvalue(), Key=key)
     return True
