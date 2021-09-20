@@ -1,5 +1,5 @@
-from xetra_jobs.s3.BaseBucketConnector import BaseBucketConnector
-from xetra_jobs.utils import list_dates
+from xetra_jobs.s3.base_bucket import BaseBucketConnector
+from xetra_jobs.common.utils import list_dates
 import pandas as pd
 from io import StringIO
 

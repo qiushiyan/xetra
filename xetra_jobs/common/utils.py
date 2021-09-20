@@ -16,7 +16,7 @@ def dates_to_strs(dates, date_format):
     return list(map(lambda d: d.strftime(date_format), dates))
 
 
-def list_dates(input_date, date_format, single_day):
+def list_dates(input_date, date_format, single_day=True):
     """list a series of workdays after an input date
 
     :param input_date: target date

@@ -1,4 +1,4 @@
-from tests.s3.TestBaseBucketConnector import TestBaseBucketConnector
+from tests.s3.test_base_bucket import TestBaseBucketConnector
 from xetra_jobs.common.exceptions import WrongFileFormatException
 from xetra_jobs.common.constants import MetaFileConfig, S3TargetConfig
 from datetime import datetime, timedelta
@@ -18,19 +18,18 @@ class TestTargetBucketConnector(TestBaseBucketConnector):
         test write_s3 works for csv
         """
         # Expected results
-        return_expected = True
         df_expected = pd.DataFrame(
             [['A', 'B'], ['C', 'D']], columns=['col1', 'col2'])
         key = 'test.csv'
-        format = 'csv'
+        file_format = "csv"
         # Method execution
-        result = self.trg_bucket_connector.write_s3(df_expected, key, format)
+        result = self.trg_bucket_connector.write_s3(
+            df_expected, key, file_format)
         # Test after method execution
         data = self.bucket.Object(key=key).get().get(
             'Body').read().decode('utf-8')
         out_buffer = StringIO(data)
         df_result = pd.read_csv(out_buffer)
-        self.assertEqual(return_expected, result)
         self.assertTrue(df_result.equals(df_expected))
 
     def test_write_s3_parquet(self):
@@ -45,7 +44,6 @@ class TestTargetBucketConnector(TestBaseBucketConnector):
         file_format = 'parquet'
         # method execution
         self.trg_bucket_connector.write_s3(df_expected, key, file_format)
-
         data = self.bucket.Object(key=key).get().get(
             'Body').read()
         out_buffer = BytesIO(data)
@@ -69,9 +67,9 @@ class TestTargetBucketConnector(TestBaseBucketConnector):
             # log test after method execution
             self.assertIn(log_expected, log.output[0])
 
-    def test_list_existing_target_dates(self):
+    def test_list_existing_dates(self):
         """
-        test list_existing_target_dates returns correct date list
+        test list_existing_dates returns correct date list
         """
 
         prefix = S3TargetConfig.PREFIX.value
@@ -85,7 +83,7 @@ class TestTargetBucketConnector(TestBaseBucketConnector):
         self.bucket.put_object(Body=csv_content, Key=key1)
         self.bucket.put_object(Body=csv_content, Key=key2)
         # method execution
-        dates_result = self.trg_bucket_connector.list_existing_target_dates()
+        dates_result = self.trg_bucket_connector.list_existing_dates()
         self.assertEqual(set([date1, date2]), set(dates_result))
 
     def test_read_meta_file(self):

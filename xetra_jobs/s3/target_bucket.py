@@ -41,9 +41,9 @@ class TargetBucketConnector(BaseBucketConnector):
                 MetaFileConfig.META_TIMESTAMP_COL.value])
         return df
 
-    def list_existing_target_dates(self):
+    def list_existing_dates(self):
         """
-        list dates whose xetra data has been loaded to s3 (in target bucket)
+        list dates whose xetra data has been loaded to target bucket
 
         returns:
             a list of dates, without target prefix

@@ -2,8 +2,8 @@ import boto3
 from moto import mock_s3
 import unittest
 import os
-from xetra_jobs.s3.SourceBucketConnector import SourceBucketConnector
-from xetra_jobs.s3.TargetBucketConnector import TargetBucketConnector
+from xetra_jobs.s3.source_bucket import SourceBucketConnector
+from xetra_jobs.s3.target_bucket import TargetBucketConnector
 
 
 @mock_s3

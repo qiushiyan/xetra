@@ -2,7 +2,9 @@
 
 
 class BaseXetraException(Exception):
-    pass
+    """
+    base exception class
+    """
 
 
 class BucketNotFoundException(BaseXetraException):
@@ -19,7 +21,7 @@ class BucketNotFoundException(BaseXetraException):
 
 class WrongFileFormatException(BaseXetraException):
     """
-    Exception that can be raised when the format type
+    exception that can be raised when the format type
     given as parameter is not supported.
     """
 
@@ -32,6 +34,6 @@ class WrongFileFormatException(BaseXetraException):
 
 class WrongMetaFileException(BaseXetraException):
     """
-    Exception that can be raised when the meta file
+    exception that can be raised when the meta file
     format is not correct.
     """
