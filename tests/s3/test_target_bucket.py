@@ -75,9 +75,7 @@ class TestTargetBucketConnector(TestBaseBucketConnector):
         prefix = S3TargetConfig.PREFIX.value
         date1 = datetime.today().strftime("%Y-%m-%d")
         date2 = (datetime.today() - timedelta(1)).strftime("%Y-%m-%d")
-        csv_content = """col1,col2
-        valA,valB
-        """
+        csv_content = f"col1,col2\nvalA,valB"
         key1 = f"{prefix}/{date1}.csv"
         key2 = f"{prefix}/{date2}.csv"
         self.bucket.put_object(Body=csv_content, Key=key1)
@@ -97,9 +95,7 @@ class TestTargetBucketConnector(TestBaseBucketConnector):
         timestamp_col = MetaFileConfig.META_TIMESTAMP_COL.value
         test_timestamp = datetime.now().strftime(
             MetaFileConfig.META_TIMESTAMP_FORMAT.value)
-        csv_content = f"""{date_col}, {timestamp_col}
-        {test_date}, {test_timestamp}
-        """
+        csv_content = f"{date_col},{timestamp_col}\n{test_date},{test_timestamp}"
         data = StringIO(csv_content)
         df_expcted = pd.read_csv(data)
         self.bucket.put_object(Body=csv_content, Key=meta_key)

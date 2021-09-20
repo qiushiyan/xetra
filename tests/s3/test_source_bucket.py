@@ -82,7 +82,7 @@ class TestSourceBucketConnector(TestBaseBucketConnector):
         self.bucket.put_object(Body=csv_content1, Key=key1)
         self.bucket.put_object(Body=csv_content2, Key=key2)
         csv_result = (self.src_bucket_connector.read_objects(
-            "2021-09-17", "%Y-%m-%d", "all")).to_csv(index=False)
+            "2021-09-17", "all")).to_csv(index=False)
         self.assertEqual(csv_expected, csv_result)
 
 

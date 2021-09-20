@@ -6,9 +6,16 @@ from enum import Enum
 
 class S3TargetConfig(Enum):
     """
-    configuration for S3BucketConnector write_s3
+    configuration for target bucket
     """
     PREFIX = "daily/"
+
+
+class S3SourceConfig(Enum):
+    """
+    configuration for source bucket
+    """
+    INPUT_DATE_FORMAT = "%Y-%m-%d"
 
 
 class S3FileFormats(Enum):

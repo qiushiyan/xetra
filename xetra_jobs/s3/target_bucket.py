@@ -26,7 +26,7 @@ class TargetBucketConnector(BaseBucketConnector):
 
         meta_key = MetaFileConfig.META_KEY.value
         self._logger.info(
-            f'Reading meta file {self.endpoint_url}/{self._bucket.name}/{meta_key}')
+            f'reading meta file at {self.endpoint_url}/{self._bucket.name}/{meta_key}')
         try:
             csv_obj = self._bucket.Object(key=meta_key)\
                 .get()\

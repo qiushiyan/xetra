@@ -1,3 +1,4 @@
+from xetra_jobs.common.constants import S3SourceConfig
 from xetra_jobs.s3.base_bucket import BaseBucketConnector
 from xetra_jobs.common.utils import list_dates
 import pandas as pd
@@ -25,7 +26,7 @@ class SourceBucketConnector(BaseBucketConnector):
             Prefix=date_prefix)]
         return keys
 
-    def read_object(self, key, columns=None, decoding="utf-8"):
+    def read_object(self, key, columns, decoding="utf-8"):
         """
         read in an s3 object csv file as dataframe
 
@@ -38,7 +39,6 @@ class SourceBucketConnector(BaseBucketConnector):
         """
         self._logger.info(
             f'Reading file {self.endpoint_url}/{self._bucket.name}/{key}')
-        columns = self.config["source"]["src_columns"] if not columns else columns
         try:
             csv_obj = self._bucket.Object(key=key)\
                 .get()\
@@ -58,7 +58,7 @@ class SourceBucketConnector(BaseBucketConnector):
         except self.session.client("s3").exceptions.NoSuchKey:
             return None
 
-    def read_objects(self, input_date: str, date_format: str, columns=None):
+    def read_objects(self, input_date: str, columns="all"):
         """
         get all day's objects into a dataframe
         start from a date
@@ -70,9 +70,8 @@ class SourceBucketConnector(BaseBucketConnector):
         returns:
             a dataframe concatting all day' objects
         """
-        columns = self.config["source"]["src_columns"] if not columns else columns
         all_keys = []
-
+        date_format = S3SourceConfig.INPUT_DATE_FORMAT.value
         dates = list_dates(input_date, date_format, single_day=True)
         for date in dates:
             for key in self.list_keys_by_date_prefix(date):

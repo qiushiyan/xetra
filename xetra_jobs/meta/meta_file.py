@@ -71,6 +71,5 @@ class MetaFile():
         """
         if a date has been stored in the metafile
         """
-        meta_df = bucket_connector.read_object(MetaFile.meta_key, columns=[
-            MetaFileConfig.META_DATE_COL.value])
-        return date in meta_df[MetaFileConfig.META_DATE_COL.value]
+        meta_df = bucket_connector.read_meta_file()
+        return date in (meta_df[MetaFileConfig.META_DATE_COL.value]).tolist()

@@ -33,7 +33,3 @@ class TestBaseBucketConnector(unittest.TestCase):
         for key in self.bucket.objects.all():
             key.delete()
         self.bucket.delete()
-
-
-if __name__ == "__main__":
-    unittest.main()

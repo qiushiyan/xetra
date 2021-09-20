@@ -2,11 +2,11 @@ from dataclasses import dataclass
 
 
 @dataclass
-class XetraSourceConfig:
+class ETLSourceConfig:
     """
     dataclass storing source configurations
     """
-    src_test_input_date: str
+    src_input_date: str
     src_columns: list
     src_col_date: str
     src_col_isin: str
@@ -18,10 +18,12 @@ class XetraSourceConfig:
 
 
 @dataclass
-class XetraTargetConfig:
+class ETLTargetConfig:
     """
     dataclass storing target configuration
     """
+    trg_key_date_format: str
+    trg_format: str
     trg_col_isin: str
     trg_col_date: str
     trg_col_op_price: str
@@ -31,5 +33,3 @@ class XetraTargetConfig:
     trg_col_dail_trad_vol: str
     trg_col_ch_prev_clos: str
     trg_key: str
-    trg_key_date_format: str
-    trg_format: str

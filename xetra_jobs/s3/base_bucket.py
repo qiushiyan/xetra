@@ -1,5 +1,4 @@
 import logging
-import yaml
 import boto3
 import os
 import unittest
@@ -27,5 +26,3 @@ class BaseBucketConnector(unittest.TestCase):
         self._s3_client = self.session.resource(
             service_name='s3', endpoint_url=endpoint_url)
         self._bucket = self._s3_client.Bucket(bucket_name)
-        with open("configs/config.yaml") as f:
-            self.config = yaml.safe_load(f)
