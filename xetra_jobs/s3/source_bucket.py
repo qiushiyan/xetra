@@ -10,6 +10,8 @@ class SourceBucketConnector(BaseBucketConnector):
     interface to source bucket: deutsche-boerse-xetra-pds
     """
 
+    date_format = S3SourceConfig.INPUT_DATE_FORMAT.value
+
     def __init__(self, access_key, secret_access_key, endpoint_url, bucket_name):
         super().__init__(access_key, secret_access_key, endpoint_url, bucket_name)
 
@@ -32,7 +34,7 @@ class SourceBucketConnector(BaseBucketConnector):
 
         :param key: s3 object key
         :param columns: columns to select, passed to pd.read_csv(usecols)
-        :param decoding: decoding codes, default to utf-8
+        :param decoding: decoding codes for csv files, default to utf-8
 
         returns:
             a pandas dataframe with specified columns
@@ -64,15 +66,14 @@ class SourceBucketConnector(BaseBucketConnector):
         start from a date
 
         :param input_date: start date
-        :param date_format: date format codes
         :param columns: columns to select, passed to pd.read_csv(usecols)
 
         returns:
             a dataframe concatting all day' objects
         """
         all_keys = []
-        date_format = S3SourceConfig.INPUT_DATE_FORMAT.value
-        dates = list_dates(input_date, date_format, single_day=True)
+
+        dates = list_dates(input_date, self.date_format, single_day=True)
         for date in dates:
             for key in self.list_keys_by_date_prefix(date):
                 all_keys.append(key)

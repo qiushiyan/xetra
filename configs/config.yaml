@@ -30,6 +30,7 @@ source:
 
 # configuration specific to the target
 target:
+  trg_prefix: "daily/"
   trg_key_date_format: "%Y%m%d"
   trg_format: "parquet"
   trg_col_isin: "isin"

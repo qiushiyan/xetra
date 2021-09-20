@@ -4,7 +4,7 @@ tests for the meta file
 from xetra_jobs.common.exceptions import WrongMetaFileException
 from tests.s3.test_base_bucket import TestBaseBucketConnector
 from xetra_jobs.meta.meta_file import MetaFile
-from xetra_jobs.common.constants import MetaFileConfig, S3TargetConfig
+from xetra_jobs.common.constants import MetaFileConfig
 from datetime import datetime
 import pandas as pd
 import unittest
@@ -17,7 +17,7 @@ class TestMetaFile(TestBaseBucketConnector):
     meta_timestamp_col = MetaFileConfig.META_TIMESTAMP_COL.value
     meta_date_format = MetaFileConfig.META_DATE_FORMAT.value
     meta_timestamp_format = MetaFileConfig.META_TIMESTAMP_FORMAT.value
-    target_prefix = S3TargetConfig.PREFIX.value
+    target_prefix = "daily/"
     test_date = datetime.today().strftime(MetaFileConfig.META_DATE_FORMAT.value)
 
     def test_create_meta_file(self):

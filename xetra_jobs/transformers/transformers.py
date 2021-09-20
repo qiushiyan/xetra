@@ -1,4 +1,3 @@
-
 from xetra_jobs.meta.meta_file import MetaFile
 from xetra_jobs.s3.target_bucket import TargetBucketConnector
 from xetra_jobs.s3.source_bucket import SourceBucketConnector
@@ -38,30 +37,57 @@ class ETL():
         """
         read the source data and concatenates them into one pandas dataframe
 
-        :returns:
-          a pandas data frame containing data of the specified data
-        """
-        MetaFile.date_in_meta_file
-        self._logger.info('extracting xetra source data')
-        df = self.src_bucekt.read_objects(
-            input_date=self.input_date, columns=self.src_args.src_columns)
-        self._logger.info('extracted source data')
-        return df
+        returns:
+            a tuple with two elements
+                1. df: the extracted dataframe
+                2. transformed: should the dataframe been transformed
 
-    def transform(self, df: pd.DataFrame):
+        """
+        self._logger.info('extracting xetra source data')
+        # if the input date is recorded in meta file, skip extract and transform steps
+        # read directly from target bucket
+        if MetaFile.date_in_meta_file(self.input_date, self.trg_bucket):
+            self._logger.info(
+                'input date exists in meta file, reading from target bucket')
+            key = (
+                f'{self.trg_args.trg_prefix}'
+                f'datetime.strptime(self.input_date).strftime(self.trg_args.trg_key_date_format).'
+                f'{self.trg_args.trg_format}'
+            )
+            df = self.trg_bucket.read_object(key, self.trg_args.trg_format)
+            self._logger.info('read data from target bucket')
+            return (df, True)
+        else:
+            self._logger.info(
+                'input date does not exist in meta file, reading from source bucket')
+            df = self.src_bucekt.read_objects(
+                input_date=self.input_date, columns=self.src_args.src_columns)
+            self._logger.info('extracted data from source bucket')
+            return (df, False)
+
+    def transform(self, df: pd.DataFrame, transformed=False):
         """
         apply transformations to extracted df
 
         :param df: result dataframe from extract()
+        :param transformed: if the dataframe has been transformed
 
         returns:
-            df: the transformed dataframe
+            a tuple contaning two elements:
+                df: the transformed dataframe
+                loaded: should the dataframe be loaded
         """
-        # return when data frame is emoty
+        # apply no transformation when df is read from target bucket
+        if transformed:
+            self._logger.info(
+                'transformed dataframe, skip transformation')
+            return (df, True)
+        # apply no transformation when df is empty
         if df.empty:
             self._logger.info(
-                'empty data frame, no transformation applied')
-            return df
+                'empty dataframe, skip transformation')
+            return (df, False)
+        # start transformation
         # drop rows with missing values
         df.dropna(inplace=True)
         # compute opening and closing price
@@ -114,24 +140,45 @@ class ETL():
             .round(decimals=2)
         self._logger.info(
             'applied transformations to source data')
-        return
+        return (df, False)
 
-    def load(self, df: pd.DataFrame):
+    def load(self, df: pd.DataFrame, loaded: False):
         """
         save transformed dataframe to target bucket
 
-        :param df: Pandas DataFrame as Input
+        :param df: the dataframe to be saved
+        :param loaded: if the dataframe has been loaded
+
+        returns:
+            the transformed dataframe
         """
-        target_key = (
-            f'{self.trg_args.trg_key}'
-            f'{datetime.today().strftime(self.trg_args.trg_key_date_format)}.'
-            f'{self.trg_args.trg_format}'
-        )
-        self.trg_bucket.write_s3(df, target_key, self.trg_args.trg_format)
-        self._logger.info(
-            f'Saved transformed xetra data into target bucket ${target_key}')
-        # Updating meta file
-        MetaFile.update_meta_file(
-            self.input_date, self.trg_bucket)
-        self._logger.info('updated meta file')
-        return True
+        if loaded:
+            self._logger.info("loaded data, skip loading")
+            return df
+        else:
+            target_key = (f'{self.trg_args.trg_prefix}'
+                          f'{datetime.today().strftime(self.trg_args.trg_key_date_format)}.'
+                          f'{self.trg_args.trg_format}'
+                          )
+            self._logger.info(
+                f'saving transformed data into target bucket ${target_key}')
+            self.trg_bucket.write_s3(df, target_key, self.trg_args.trg_format)
+            self._logger.info(
+                f'saved transformed data into target bucket ${target_key}')
+            # Updating meta file
+            MetaFile.update_meta_file(
+                self.input_date, self.trg_bucket)
+            self._logger.info('updated meta file')
+            return df
+
+    def run(self):
+        """
+        combine extract, transform, and load
+
+        returns:
+            the dataframe saved to target bucket
+        """
+        df, transformed = self.extract()
+        df, loaded = self.transform(df, transformed)
+        df = self.load(df, loaded)
+        return df

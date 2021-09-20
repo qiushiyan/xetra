@@ -22,6 +22,7 @@ class ETLTargetConfig:
     """
     dataclass storing target configuration
     """
+    trg_prefix: str
     trg_key_date_format: str
     trg_format: str
     trg_col_isin: str

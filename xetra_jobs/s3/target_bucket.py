@@ -1,6 +1,6 @@
 from xetra_jobs.s3.base_bucket import BaseBucketConnector
-from xetra_jobs.common.constants import MetaFileConfig, S3TargetConfig, S3FileFormats
-from xetra_jobs.common.exceptions import WrongFileFormatException, WrongMetaFileException
+from xetra_jobs.common.constants import MetaFileConfig,  S3FileFormats
+from xetra_jobs.common.exceptions import WrongFileFormatException
 from io import StringIO, BytesIO
 import pandas as pd
 import re
@@ -10,6 +10,15 @@ class TargetBucketConnector(BaseBucketConnector):
     """
     interface to target bucket: xetra-report
     """
+
+    meta_key = MetaFileConfig.META_KEY.value
+    meta_date_col = MetaFileConfig.META_DATE_COL.value,
+    meta_timestamp_col = MetaFileConfig.META_TIMESTAMP_COL.value
+
+    csv_format = S3FileFormats.CSV.value
+    parquet_format = S3FileFormats.PARQUET.value
+
+    prefix = "daily/"
 
     def __init__(self, access_key, secret_access_key, endpoint_url, bucket_name):
         super().__init__(access_key, secret_access_key, endpoint_url, bucket_name)
@@ -24,11 +33,10 @@ class TargetBucketConnector(BaseBucketConnector):
             meta file in dataframe, returns empty dataframe if meta file does not exists
         """
 
-        meta_key = MetaFileConfig.META_KEY.value
         self._logger.info(
-            f'reading meta file at {self.endpoint_url}/{self._bucket.name}/{meta_key}')
+            f'reading meta file at {self.endpoint_url}/{self._bucket.name}/{self.meta_key}')
         try:
-            csv_obj = self._bucket.Object(key=meta_key)\
+            csv_obj = self._bucket.Object(key=self.meta_key)\
                 .get()\
                 .get("Body")\
                 .read()\
@@ -37,8 +45,37 @@ class TargetBucketConnector(BaseBucketConnector):
             df = pd.read_csv(data)
         except self.session.client("s3").exceptions.NoSuchKey:
             df = pd.DataFrame(columns=[
-                MetaFileConfig.META_DATE_COL.value,
-                MetaFileConfig.META_TIMESTAMP_COL.value])
+                self.meta_date_col,
+                self.meta_timestamp_col])
+        return df
+
+    def read_object(self, key: str, file_format: str, decoding="utf-8"):
+        """
+        read in an s3 object as a pandas dataframe
+        used as a caching layer when input date exists in meta file
+
+        :param key: object key
+        :param file_format: object file format, support csv or parquet
+        :param decoding: file decoding for csv files
+
+        returns:
+            a dataframe
+        """
+        self._logger.info(
+            f'Reading file {self.endpoint_url}/{self._bucket.name}/{key}')
+        if file_format == self.csv_format:
+            csv_obj = self._bucket.Object(key=key)\
+                .get()\
+                .get("Body")\
+                .read()\
+                .decode(decoding)
+            df = pd.read_csv(StringIO(csv_obj))
+        if file_format == self.parquet_format:
+            parquet_obj = self._bucket.Object(key=key)\
+                .get()\
+                .get("Body")\
+                .read()
+            df.read_parquet(BytesIO(parquet_obj))
         return df
 
     def list_existing_dates(self):
@@ -49,9 +86,8 @@ class TargetBucketConnector(BaseBucketConnector):
             a list of dates, without target prefix
         """
 
-        trg_prefix = S3TargetConfig.PREFIX.value
         existing_keys = [
-            obj.key for obj in self._bucket.objects.filter(Prefix=trg_prefix)]
+            obj.key for obj in self._bucket.objects.filter(Prefix=self.prefix)]
         existing_dates = []
         for key in existing_keys:
             m = re.search(r'(\d+-\d+-\d+)', key)
@@ -73,11 +109,11 @@ class TargetBucketConnector(BaseBucketConnector):
             self._logger.info(
                 'The dataframe is empty! No file will be written!')
             return None
-        if file_format == S3FileFormats.CSV.value:
+        if file_format == self.csv_format:
             out_buffer = StringIO()
             df.to_csv(out_buffer, index=False)
             return self._put_object(out_buffer, key)
-        if file_format == S3FileFormats.PARQUET.value:
+        if file_format == self.parquet_format:
             out_buffer = BytesIO()
             df.to_parquet(out_buffer, index=False)
             return self._put_object(out_buffer, key)
