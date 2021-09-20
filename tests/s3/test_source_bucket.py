@@ -2,12 +2,10 @@
 
 from io import StringIO
 import unittest
-from moto import mock_s3
 import pandas as pd
-from tests.s3.TestBaseBucketConnector import TestBaseBucketConnector
+from tests.s3.test_base_bucket import TestBaseBucketConnector
 
 
-@mock_s3
 class TestSourceBucketConnector(TestBaseBucketConnector):
     """
     test source bucket connector methods

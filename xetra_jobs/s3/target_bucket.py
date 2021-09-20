@@ -1,4 +1,4 @@
-from xetra_jobs.s3.BaseBucketConnector import BaseBucketConnector
+from xetra_jobs.s3.base_bucket import BaseBucketConnector
 from xetra_jobs.common.constants import MetaFileConfig, S3TargetConfig, S3FileFormats
 from xetra_jobs.common.exceptions import WrongFileFormatException, WrongMetaFileException
 from io import StringIO, BytesIO

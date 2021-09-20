@@ -5,7 +5,7 @@ import collections
 from datetime import datetime
 from io import StringIO
 import pandas as pd
-from xetra_jobs.s3.base_bucket import TargetBucketConnector
+from xetra_jobs.s3.target_bucket import TargetBucketConnector
 from xetra_jobs.common.constants import MetaFileConfig
 from xetra_jobs.common.exceptions import WrongMetaFileException
 

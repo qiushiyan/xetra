@@ -1,8 +1,8 @@
 """
 tests for the meta file
 """
-from xetra_jobs.meta.meta_file import MetaFile
 from tests.s3.test_base_bucket import TestBaseBucketConnector
+from xetra_jobs.meta.meta_file import MetaFile
 from xetra_jobs.common.constants import MetaFileConfig, S3TargetConfig
 from datetime import datetime
 import pandas as pd
@@ -57,6 +57,34 @@ class TestMetaFile(TestBaseBucketConnector):
         MetaFile.update_meta_file(input_date, self.trg_bucket_connector)
         df_result = self.trg_bucket_connector.read_meta_file()
         self.assertTrue(df_result.equals(df_expected))
+
+    def test_update_meta_file_meta_file_exists(self):
+        """
+        test update_meta_file works when there is one meta file already
+        """
+        # Expected results
+        date_old = '2021-09-13'
+        date_new = '2021-09-14'
+        dates_expected = [date_old, date_new]
+        processed_time_expected = [datetime.today().date()] * 2
+        # Test init
+        meta_key = MetaFileConfig.META_KEY.value
+        meta_content = f"""
+        {MetaFileConfig.META_DATE_COL.value}, {MetaFileConfig.META_TIMESTAMP_COL.value}
+        {date_old}, {datetime.today().strftime(MetaFileConfig.META_DATE_COL.value)},
+        """
+        self.bucket.put_object(Body=meta_content, Key=meta_key)
+        # Method execution
+        MetaFile.update_meta_file(date_new, self.trg_bucket_connector)
+        # Read meta file
+        df_result = self.trg_bucket_connector.read_meta_file()
+        dates_result = list(df_result[
+            MetaFileConfig.META_DATE_COL.value])
+        processed_time_result = list(df_result[
+            MetaFileConfig.META_TIMESTAMP_COL.value])
+        # Test after method execution
+        self.assertEqual(dates_expected, dates_result)
+        self.assertEqual(processed_time_expected, processed_time_result)
 
 
 if __name__ == '__main__':
