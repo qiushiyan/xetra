@@ -44,17 +44,14 @@ class MetaFile():
         update the meta file with the processed date and datetime.now() as processing time
 
         :param input_date: the processed date
-        :param bucket -> a TargetBucketConnector instance in which the meta file will be updated
+        :param bucket_connector: a TargetBucketConnector instance in which the meta file will be updated
         """
         # Creating an empty DataFrame using the meta file column names
         df_new = pd.DataFrame(columns=[
-            MetaFileConfig.META_DATE_COL.value,
-            MetaFileConfig.META_TIMESTAMP_COL.value])
-        # Filling the date column with extract_date_list
+                              MetaFileConfig.META_DATE_COL.value, MetaFileConfig.META_TIMESTAMP_COL.value])
         df_new[MetaFileConfig.META_DATE_COL.value] = [input_date]
-        # Filling the processed column
-        df_new[MetaFileConfig.META_TIMESTAMP_COL.value] = [datetime.today().strftime(
-            MetaFileConfig.META_TIMESTAMP_FORMAT.value)]
+        df_new[MetaFileConfig.META_TIMESTAMP_COL.value] = [
+            datetime.today().strftime(MetaFileConfig.META_TIMESTAMP_FORMAT.value)]
         try:
             # If meta file exists -> union DataFrame of old and new meta data is created
             df_old = bucket_connector.read_meta_file()

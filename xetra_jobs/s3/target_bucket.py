@@ -16,7 +16,7 @@ class TargetBucketConnector(BaseBucketConnector):
 
     def read_meta_file(self, decoding="utf-8"):
         """
-        retireve meta file
+        retrieve meta file
 
         :param decoding: decoding codes
 

@@ -65,14 +65,12 @@ class TestMetaFile(TestBaseBucketConnector):
         # Expected results
         date_old = '2021-09-13'
         date_new = '2021-09-14'
+        ts = datetime.today().strftime(
+            MetaFileConfig.META_TIMESTAMP_FORMAT.value)
         dates_expected = [date_old, date_new]
-        processed_time_expected = [datetime.today().date()] * 2
         # Test init
         meta_key = MetaFileConfig.META_KEY.value
-        meta_content = f"""
-        {MetaFileConfig.META_DATE_COL.value}, {MetaFileConfig.META_TIMESTAMP_COL.value}
-        {date_old}, {datetime.today().strftime(MetaFileConfig.META_DATE_COL.value)},
-        """
+        meta_content = f"{MetaFileConfig.META_DATE_COL.value},{MetaFileConfig.META_TIMESTAMP_COL.value}\n{date_old},{datetime.today().date().strftime(MetaFileConfig.META_TIMESTAMP_FORMAT.value)}"
         self.bucket.put_object(Body=meta_content, Key=meta_key)
         # Method execution
         MetaFile.update_meta_file(date_new, self.trg_bucket_connector)
@@ -80,11 +78,8 @@ class TestMetaFile(TestBaseBucketConnector):
         df_result = self.trg_bucket_connector.read_meta_file()
         dates_result = list(df_result[
             MetaFileConfig.META_DATE_COL.value])
-        processed_time_result = list(df_result[
-            MetaFileConfig.META_TIMESTAMP_COL.value])
         # Test after method execution
         self.assertEqual(dates_expected, dates_result)
-        self.assertEqual(processed_time_expected, processed_time_result)
 
 
 if __name__ == '__main__':
