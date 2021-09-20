@@ -4,13 +4,6 @@ File to store constants
 from enum import Enum
 
 
-class S3TargetConfig(Enum):
-    """
-    configuration for target bucket
-    """
-    PREFIX = "daily/"
-
-
 class S3SourceConfig(Enum):
     """
     configuration for source bucket

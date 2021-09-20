@@ -11,6 +11,9 @@ class TestSourceBucketConnector(TestBaseBucketConnector):
     test source bucket connector methods
     """
 
+    test_csv_key = "test.csv"
+    test_csv_content = "col1,col2\nvalA.valB"
+
     def test_list_keys_by_date_prefix(self):
         """
         Test keys listing works
@@ -21,11 +24,8 @@ class TestSourceBucketConnector(TestBaseBucketConnector):
         prefix2 = "2021-09-20"
         key1 = f"{prefix1}/test.csv"
         key2 = f"{prefix2}/test.csv"
-        csv_content = """col1,col2
-        valA,valB
-        """
-        self.bucket.put_object(Body=csv_content, Key=key1)
-        self.bucket.put_object(Body=csv_content, Key=key2)
+        self.bucket.put_object(Body=self.test_csv_content, Key=key1)
+        self.bucket.put_object(Body=self.test_csv_content, Key=key2)
         # method execution
         result = self.src_bucket_connector.list_keys_by_date_prefix(
             date_prefix=prefix1)
@@ -41,22 +41,21 @@ class TestSourceBucketConnector(TestBaseBucketConnector):
         prefix = "prefix-that-does-not-exist"
         result = self.src_bucket_connector.list_keys_by_date_prefix(
             date_prefix=prefix)
-        self.assertTrue(not result)
+        self.assertFalse(result)
 
     def test_read_object(self):
         """
         test reading s3 objects as dataframe works
         """
 
-        key = "test.csv"
-        csv_content = """col1,col2
-        valA,valB
-        """
         # the expected dataframe
-        result_expected = pd.read_csv(StringIO(csv_content), usecols=["col1"])
+        result_expected = pd.read_csv(
+            StringIO(self.test_csv_content), usecols=["col1"])
         # mock upload csv to s3
-        self.bucket.put_object(Body=csv_content, Key=key)
-        result = self.src_bucket_connector.read_object(key, columns=["col1"])
+        self.bucket.put_object(
+            Body=self.test_csv_content, Key=self.test_csv_key)
+        result = self.src_bucket_connector.read_object(
+            self.test_csv_key, columns=["col1"])
         self.assertTrue(result.equals(result_expected))
 
     def test_read_objects(self):

@@ -17,7 +17,7 @@ class TestMetaFile(TestBaseBucketConnector):
     meta_timestamp_col = MetaFileConfig.META_TIMESTAMP_COL.value
     meta_date_format = MetaFileConfig.META_DATE_FORMAT.value
     meta_timestamp_format = MetaFileConfig.META_TIMESTAMP_FORMAT.value
-    target_prefix = "daily/"
+    trg_prefix = "daily/"
     test_date = datetime.today().strftime(MetaFileConfig.META_DATE_FORMAT.value)
 
     def test_create_meta_file(self):
@@ -25,7 +25,7 @@ class TestMetaFile(TestBaseBucketConnector):
         test create_meta_file works
         """
         # create a processed date file
-        key = f"{self.target_prefix}{self.test_date}.csv"
+        key = f"{self.trg_prefix}{self.test_date}.csv"
         df_report = pd.DataFrame(columns=[
             "ISIN",
             "Mnemonic",
