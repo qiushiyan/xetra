@@ -45,7 +45,7 @@ Example processed data
 #>  8 AT000073~         48.9          47.9      47.9      48.9            318 -0.16
 #>  9 AT000074~         25.1          24.5      24.5      25.1            100  1.41
 #> 10 AT000074~         48.6          50.1      48.6      50.6          14358  0.68
-#> # ... with 3,040 more rowsgit
+#> # ... with 3,040 more rows
 ```
 
 A meta file is included as a caching layer and saved to s3 target bucket. Whenever the job for the requested day is finished, the meta file is also updated to track processed dates, for example:
@@ -194,5 +194,5 @@ example log file for processed date
 2021-09-20 20:43:47,094 - xetra_jobs.transformers.transformers - INFO - read data from target bucket
 2021-09-20 20:43:47,094 - xetra_jobs.transformers.transformers - INFO - transformed dataframe, skip transformation
 2021-09-20 20:43:47,095 - xetra_jobs.transformers.transformers - INFO - loaded data, skip loading
-2021-09-20 20:43:47,108 - __main__ - INFO - ETL job finished for 2021-09-17.
+2021-09-20 20:43:47,108 - __main__ - INFO - ETL job finished for 2021-09-17
 ```
