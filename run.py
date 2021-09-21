@@ -42,7 +42,7 @@ def main():
     # reading target configuration
     trg_config = ETLTargetConfig(**config['target'])
     # creating XetraETL class instance
-    logger.info('xetra ETL job started')
+    logger.info('xetra job started')
     etl = ETL(src_bucket, trg_bucekt,
               MetaFileConfig.META_KEY.value, src_config, trg_config)
     # running etl job for xetra report1
@@ -50,7 +50,7 @@ def main():
     print(
         f"transformed dataframe saved to target bucket {s3_config['trg_bucket']}, example: ")
     print(df.head())
-    logger.info('ETL job finished.')
+    logger.info('xetra job finished')
 
 
 if __name__ == "__main__":
