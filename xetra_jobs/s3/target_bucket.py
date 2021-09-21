@@ -20,8 +20,8 @@ class TargetBucketConnector(BaseBucketConnector):
 
     prefix = "daily/"
 
-    def __init__(self, access_key, secret_access_key, endpoint_url, bucket_name):
-        super().__init__(access_key, secret_access_key, endpoint_url, bucket_name)
+    def __init__(self, access_key_name, secret_access_key_name, endpoint_url, bucket_name):
+        super().__init__(access_key_name, secret_access_key_name, endpoint_url, bucket_name)
 
     def read_meta_file(self, decoding="utf-8"):
         """

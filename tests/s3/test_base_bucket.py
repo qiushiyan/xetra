@@ -14,13 +14,13 @@ class TestBaseBucketConnector(unittest.TestCase):
 
     def setUp(self):
         config = {
-            "access_key": "AWS_ACCESS_KEY",
-            "secret_access_key": "AWS_SECRET_ACCESS_KEY",
+            "access_key_name": "AWS_ACCESS_KEY",
+            "secret_access_key_name": "AWS_SECRET_ACCESS_KEY",
             "endpoint_url": "https://s3.us-east-1.amazonaws.com",
             "bucket_name": "test-bucket"
         }
-        os.environ[config["access_key"]] = "accesskey"
-        os.environ[config["secret_access_key"]] = "secretaccesskey"
+        os.environ[config["access_key_name"]] = "accesskey"
+        os.environ[config["secret_access_key_name"]] = "secretaccesskey"
         self.s3_client = boto3.resource(
             service_name='s3', endpoint_url=config["endpoint_url"])
         self.s3_client.create_bucket(Bucket=config["bucket_name"])

@@ -12,8 +12,8 @@ class SourceBucketConnector(BaseBucketConnector):
 
     date_format = S3SourceConfig.INPUT_DATE_FORMAT.value
 
-    def __init__(self, access_key, secret_access_key, endpoint_url, bucket_name):
-        super().__init__(access_key, secret_access_key, endpoint_url, bucket_name)
+    def __init__(self, access_key_name, secret_access_key_name, endpoint_url, bucket_name):
+        super().__init__(access_key_name, secret_access_key_name, endpoint_url, bucket_name)
 
     def list_keys_by_date_prefix(self, date_prefix):
         """
@@ -77,6 +77,10 @@ class SourceBucketConnector(BaseBucketConnector):
         for date in dates:
             for key in self.list_keys_by_date_prefix(date):
                 all_keys.append(key)
-        df = pd.concat([self.read_object(key, columns)
-                        for key in all_keys], ignore_index=True)
-        return df
+        # return empty data frame for wrong date
+        if not len(all_keys):
+            return pd.DataFrame()
+        else:
+            df = pd.concat([self.read_object(key, columns)
+                            for key in all_keys], ignore_index=True)
+            return df

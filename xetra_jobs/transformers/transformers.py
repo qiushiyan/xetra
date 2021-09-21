@@ -87,7 +87,7 @@ class ETL():
         if df.empty:
             self._logger.info(
                 'empty dataframe, skip transformation')
-            return (df, False)
+            return (df, True)
         # start transformation
         # drop rows with missing values
         df.dropna(inplace=True)
@@ -143,7 +143,7 @@ class ETL():
             'applied transformations to source data')
         return (df, False)
 
-    def load(self, df: pd.DataFrame, loaded: False):
+    def load(self, df: pd.DataFrame, loaded=False):
         """
         save transformed dataframe to target bucket
 
@@ -154,7 +154,8 @@ class ETL():
             the transformed dataframe
         """
         if loaded:
-            self._logger.info("loaded data, skip loading")
+            self._logger.info(
+                "data frame has been loaded or is empty, skip loading")
             return df
         else:
             target_key = (f'{self.trg_args.trg_prefix}'
