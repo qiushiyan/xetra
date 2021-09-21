@@ -9,7 +9,7 @@ s3:
 
 # configuration specific to the source
 source:
-  src_input_date: "2021-09-15"
+  src_input_date: "2021-09-14"
   src_input_date_format: "%Y-%m-%d"
   src_columns:
     [
@@ -52,10 +52,10 @@ logging:
     xetra:
       format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
   handlers:
-    # console:
-    #   class: logging.StreamHandler
-    #   formatter: xetra
-    #   level: DEBUG
+    console:
+      class: logging.StreamHandler
+      formatter: xetra
+      level: DEBUG
     file:
       class: logging.handlers.WatchedFileHandler
       formatter: xetra

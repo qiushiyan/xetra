@@ -54,7 +54,7 @@ Therefore, there is a need to extract daily data into a single table, apply tran
 ## Usage
 
 ```bash
-python ./run.py configs/config.yaml
+python ./run.py --config configs/config.yaml
 ```
 
 Example processed data

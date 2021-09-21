@@ -16,7 +16,8 @@ def main():
     """
 
     parser = argparse.ArgumentParser(description='run xetra etl job')
-    parser.add_argument('config', help='a yaml configuration file')
+    parser.add_argument(
+        '--config', help='a yaml configuration file', default="configs/config.yaml")
     args = parser.parse_args()
     with open(args.config) as f:
         config = yaml.safe_load(f)
