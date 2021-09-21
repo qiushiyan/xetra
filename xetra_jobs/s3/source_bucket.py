@@ -77,7 +77,7 @@ class SourceBucketConnector(BaseBucketConnector):
         for date in dates:
             for key in self.list_keys_by_date_prefix(date):
                 all_keys.append(key)
-        # return empty data frame for wrong date
+        # return empty dataframe for wrong date
         if not len(all_keys):
             return pd.DataFrame()
         else:

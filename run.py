@@ -48,7 +48,7 @@ def main():
     # running etl job for xetra report1
     df = etl.run()
     print(
-        f"transformed data frame saved to target bucket {s3_config['trg_bucket']}, example: ")
+        f"transformed dataframe saved to target bucket {s3_config['trg_bucket']}, example: ")
     print(df.head())
     logger.info('ETL job finished.')
 

@@ -9,6 +9,7 @@ import unittest
 import os
 import pandas as pd
 import unittest
+from datetime import datetime
 
 
 @mock_s3
@@ -18,21 +19,22 @@ class TestBaseETL(unittest.TestCase):
     """
 
     def setUp(self):
-        config = {
+        self.bucket_config = {
             "access_key_name": "AWS_ACCESS_KEY",
             "secret_access_key_name": "AWS_SECRET_ACCESS_KEY",
             "endpoint_url": "https://s3.us-east-1.amazonaws.com",
             "bucket_name": "test-bucket"
         }
-        os.environ[config["access_key_name"]] = "accesskey"
-        os.environ[config["secret_access_key_name"]] = "secretaccesskey"
+        os.environ[self.bucket_config["access_key_name"]] = "accesskey"
+        os.environ[self.bucket_config["secret_access_key_name"]
+                   ] = "secretaccesskey"
         self.s3_client = boto3.resource(
-            service_name='s3', endpoint_url=config["endpoint_url"])
-        self.s3_client.create_bucket(Bucket=config["bucket_name"])
-        self.bucket = self.s3_client.Bucket(config["bucket_name"])
+            service_name='s3', endpoint_url=self.bucket_config["endpoint_url"])
+        self.s3_client.create_bucket(Bucket=self.bucket_config["bucket_name"])
+        self.bucket = self.s3_client.Bucket(self.bucket_config["bucket_name"])
         # create bucket connector instance
-        self.src_bucket_connector = SourceBucketConnector(**config)
-        self.trg_bucket_connector = TargetBucketConnector(**config)
+        self.src_bucket_connector = SourceBucketConnector(**self.bucket_config)
+        self.trg_bucket_connector = TargetBucketConnector(**self.bucket_config)
         # create target and source configuration
         self.meta_key = MetaFileConfig.META_KEY.value
         config = {"source": {
@@ -61,10 +63,14 @@ class TestBaseETL(unittest.TestCase):
             'trg_col_ch_prev_clos': 'pct',
         }}
         # create source and transformed data
-        self.input_date = '2021-04-17'
-        self.trg_key = "daily/20210417.parquet"
-        self.source_config = ETLSourceConfig(**config["source"])
-        self.target_config = ETLTargetConfig(**config["target"])
+        self.src_config = ETLSourceConfig(**config["source"])
+        self.trg_config = ETLTargetConfig(**config["target"])
+        self.input_date = self.src_config.src_input_date
+        self.input_date_format = self.src_config.src_input_date_format
+        self.trg_key = (f'{self.trg_config.trg_prefix}'
+                        f'{datetime.strptime(self.input_date, self.input_date_format).strftime(self.trg_config.trg_key_date_format)}.'
+                        f'{self.trg_config.trg_format}'
+                        )
         self.df_src = pd.DataFrame([['AT0000A0E9W5', 'SANT', '2021-04-16',
                                      '15:00', 18.27, 21.19, 18.27, 21.34, 987],
                                     ['AT0000A0E9W5', 'SANT', '2021-04-17',
@@ -85,8 +91,8 @@ class TestBaseETL(unittest.TestCase):
                                     ], columns=['isin', 'date', 'opening_price', 'closing_price',
                                                 'min_price', 'max_price', 'daily_traded_volume', 'pct'])
         self.etl = ETL(self.src_bucket_connector, self.trg_bucket_connector,
-                       self.meta_key, self.source_config, self.target_config)
-
+                       self.meta_key, self.src_config, self.trg_config)
+        self.df_empty = pd.DataFrame()
         # meta file attributes
         self.meta_date_col = MetaFileConfig.META_DATE_COL.value
 

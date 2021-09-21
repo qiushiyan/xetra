@@ -43,7 +43,7 @@ class TargetBucketConnector(BaseBucketConnector):
                 .decode(decoding)
             data = StringIO(csv_obj)
             df = pd.read_csv(data)
-        # if there is not meta file, return an empty data frame with specified columns
+        # if there is not meta file, return an empty dataframe with specified columns
         except self.session.client("s3").exceptions.NoSuchKey:
             df = pd.DataFrame(columns=[
                 self.meta_date_col,
@@ -118,7 +118,7 @@ class TargetBucketConnector(BaseBucketConnector):
             out_buffer = BytesIO()
             df.to_parquet(out_buffer, index=False)
             return self._put_object(out_buffer, key)
-        self._logger.info(f'The file format {file_format} is not '
+        self._logger.info(f'file format {file_format} is not '
                           'supported to be written to s3!')
         raise WrongFileFormatException(file_format)
 
@@ -130,6 +130,6 @@ class TargetBucketConnector(BaseBucketConnector):
         :param key: target key of the saved file
         """
         self._logger.info(
-            f'Writing file to {self.endpoint_url}/{self._bucket.name}/{key}')
+            f'writing file to {self.endpoint_url}/{self._bucket.name}/{key}')
         self._bucket.put_object(Body=out_buffer.getvalue(), Key=key)
         return True

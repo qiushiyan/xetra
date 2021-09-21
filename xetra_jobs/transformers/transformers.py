@@ -155,7 +155,7 @@ class ETL():
         """
         if loaded:
             self._logger.info(
-                "data frame has been loaded or is empty, skip loading")
+                "dataframe has been loaded or is empty, skip loading")
             return df
         else:
             target_key = (f'{self.trg_args.trg_prefix}'
@@ -163,10 +163,10 @@ class ETL():
                           f'{self.trg_args.trg_format}'
                           )
             self._logger.info(
-                f'saving transformed data into target bucket ${target_key}')
+                f'saving transformed data into target bucket {target_key}')
             self.trg_bucket.write_s3(df, target_key, self.trg_args.trg_format)
             self._logger.info(
-                f'saved transformed data into target bucket ${target_key}')
+                f'saved transformed data into target bucket {target_key}')
             # Updating meta file
             MetaFile.update_meta_file(
                 self.input_date, self.trg_bucket)
