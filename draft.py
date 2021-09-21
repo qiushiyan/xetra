@@ -1,3 +1,8 @@
+"""
+draft implementation of ETL jobs via a functional approach
+no configuration, no testing, no meta files
+"""
+
 import boto3
 import pandas as pd
 from datetime import datetime, timedelta
@@ -119,3 +124,5 @@ bucket = s3.Bucket(source_bucket)
 
 dates = list_dates("2021-09-17")
 df = collect_df(bucket, dates)
+df = transform(df, "2021-09-17")
+load(df, "2021-09-17")
