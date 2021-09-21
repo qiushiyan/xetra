@@ -3,7 +3,7 @@ from xetra_jobs.s3.target_bucket import TargetBucketConnector
 from xetra_jobs.s3.source_bucket import SourceBucketConnector
 from xetra_jobs.transformers.config import ETLSourceConfig, ETLTargetConfig
 import logging
-from pandas import pd
+import pandas as pd
 from datetime import datetime
 
 
@@ -32,6 +32,7 @@ class ETL():
         self.trg_args = target_args
         # just for convenience, since we are going to use the input date multiple times
         self.input_date = self.src_args.src_input_date
+        self.input_date_format = self.src_args.src_input_date_format
 
     def extract(self):
         """
@@ -51,7 +52,7 @@ class ETL():
                 'input date exists in meta file, reading from target bucket')
             key = (
                 f'{self.trg_args.trg_prefix}'
-                f'datetime.strptime(self.input_date).strftime(self.trg_args.trg_key_date_format).'
+                f'{datetime.strptime(self.input_date, self.input_date_format).strftime(self.trg_args.trg_key_date_format)}.'
                 f'{self.trg_args.trg_format}'
             )
             df = self.trg_bucket.read_object(key, self.trg_args.trg_format)
@@ -127,8 +128,8 @@ class ETL():
         # Change of current day's closing price compared to the
         # previous trading day's closing price in %
         df[self.trg_args.trg_col_ch_prev_clos] = df\
-            .sort_values(by=[self.trg_args.src_col_date])\
-            .groupby([self.trg_args.src_col_isin])[self.trg_args.trg_col_op_price]\
+            .sort_values(by=[self.trg_args.trg_col_date])\
+            .groupby([self.trg_args.trg_col_isin])[self.trg_args.trg_col_op_price]\
             .shift(1)
         df[self.trg_args.trg_col_ch_prev_clos] = (
             df[self.trg_args.trg_col_op_price]
@@ -157,7 +158,7 @@ class ETL():
             return df
         else:
             target_key = (f'{self.trg_args.trg_prefix}'
-                          f'{datetime.today().strftime(self.trg_args.trg_key_date_format)}.'
+                          f'{datetime.strptime(self.input_date, self.input_date_format).strftime(self.trg_args.trg_key_date_format)}.'
                           f'{self.trg_args.trg_format}'
                           )
             self._logger.info(

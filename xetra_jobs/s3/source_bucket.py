@@ -40,7 +40,7 @@ class SourceBucketConnector(BaseBucketConnector):
             a pandas dataframe with specified columns
         """
         self._logger.info(
-            f'Reading file {self.endpoint_url}/{self._bucket.name}/{key}')
+            f'reading file {self.endpoint_url}/{self._bucket.name}/{key}')
         try:
             csv_obj = self._bucket.Object(key=key)\
                 .get()\

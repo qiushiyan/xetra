@@ -12,7 +12,7 @@ class TargetBucketConnector(BaseBucketConnector):
     """
 
     meta_key = MetaFileConfig.META_KEY.value
-    meta_date_col = MetaFileConfig.META_DATE_COL.value,
+    meta_date_col = MetaFileConfig.META_DATE_COL.value
     meta_timestamp_col = MetaFileConfig.META_TIMESTAMP_COL.value
 
     csv_format = S3FileFormats.CSV.value
@@ -43,6 +43,7 @@ class TargetBucketConnector(BaseBucketConnector):
                 .decode(decoding)
             data = StringIO(csv_obj)
             df = pd.read_csv(data)
+        # if there is not meta file, return an empty data frame with specified columns
         except self.session.client("s3").exceptions.NoSuchKey:
             df = pd.DataFrame(columns=[
                 self.meta_date_col,
@@ -62,7 +63,7 @@ class TargetBucketConnector(BaseBucketConnector):
             a dataframe
         """
         self._logger.info(
-            f'Reading file {self.endpoint_url}/{self._bucket.name}/{key}')
+            f'reading file {self.endpoint_url}/{self._bucket.name}/{key}')
         if file_format == self.csv_format:
             csv_obj = self._bucket.Object(key=key)\
                 .get()\
@@ -75,7 +76,7 @@ class TargetBucketConnector(BaseBucketConnector):
                 .get()\
                 .get("Body")\
                 .read()
-            df.read_parquet(BytesIO(parquet_obj))
+            df = pd.read_parquet(BytesIO(parquet_obj))
         return df
 
     def list_existing_dates(self):

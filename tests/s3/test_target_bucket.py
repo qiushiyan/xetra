@@ -39,6 +39,14 @@ class TestTargetBucketConnector(TestBaseBucketConnector):
             self.test_csv_key, self.test_csv_format)
         self.assertTrue(df_result.equals(df_expected))
 
+    def test_read_object_parquet(self):
+        df_expected = self.test_df
+        self.trg_bucket_connector.write_s3(
+            df_expected, self.test_parquet_key, self.test_parquet_format)
+        df_result = self.trg_bucket_connector.read_object(
+            self.test_parquet_key, self.test_parquet_format)
+        self.assertTrue(df_result.equals(df_expected))
+
     def test_write_s3_csv(self):
         """
         test write_s3 works for csv

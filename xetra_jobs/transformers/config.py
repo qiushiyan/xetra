@@ -7,6 +7,7 @@ class ETLSourceConfig:
     dataclass storing source configurations
     """
     src_input_date: str
+    src_input_date_format: str
     src_columns: list
     src_col_date: str
     src_col_isin: str
@@ -33,4 +34,3 @@ class ETLTargetConfig:
     trg_col_max_price: str
     trg_col_dail_trad_vol: str
     trg_col_ch_prev_clos: str
-    trg_key: str

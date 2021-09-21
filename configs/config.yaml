@@ -4,10 +4,13 @@ s3:
   src_bucket: "deutsche-boerse-xetra-pds"
   trg_endpoint_url: "https://s3.amazonaws.com"
   trg_bucket: "xetra-report"
+  access_key_name: "aws_access_key"
+  secret_access_key_name: "aws_secret_access_key"
 
 # configuration specific to the source
 source:
-  src_input_date: "2020-09-17"
+  src_input_date: "2021-09-16"
+  src_input_date_format: "%Y-%m-%d"
   src_columns:
     [
       "ISIN",
