@@ -62,4 +62,4 @@ logging:
       filename: xetra-jobs.log
   root:
     level: DEBUG
-    handlers: [file]
+    handlers: [file, console]
