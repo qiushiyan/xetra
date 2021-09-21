@@ -4,49 +4,69 @@ This repo contains example ETL jobs for processing daily trading data from the D
 
 ## The Problem
 
+The Deutsche Börse Public releases real-time trade data in their public s3 bucket `s3://deutsche-boerse-xetra-pds`, which is aggregated to one minute intervals from the Eurex and Xetra trading systems. It provides the initial price, lowest price, highest price, final price and volume for every minute of the trading day.
+
+While minute-level data provides the highest resolution, analysts may be more intersted to get data on a daily basis. New features should be created such as opening price, closing price, minimum price, maximum price and growth rate comapred to previous workday.
+
+Example source data
+
+| ISIN         | Date       | Time     | StartPrice | MaxPrice | MinPrice | EndPrice | TradedVolume |
+| :----------- | :--------- | :------- | ---------: | -------: | -------: | -------: | -----------: |
+| AT0000A0E9W5 | 2021-09-16 | 07:00:00 |      22.50 |    22.52 |    22.48 |    22.48 |         3279 |
+| DE000A0DJ6J9 | 2021-09-16 | 07:00:00 |      37.60 |    37.60 |    37.50 |    37.50 |         1281 |
+| DE000A0D6554 | 2021-09-16 | 07:00:00 |      15.15 |    15.18 |    15.14 |    15.14 |         7066 |
+| DE000A0D9PT0 | 2021-09-16 | 07:00:00 |     187.95 |   188.00 |   187.85 |   188.00 |          374 |
+| DE000A0HN5C6 | 2021-09-16 | 07:00:00 |      53.02 |    53.02 |    52.98 |    53.02 |         9971 |
+| DE000A0JL9W6 | 2021-09-16 | 07:00:00 |      53.75 |    53.75 |    53.45 |    53.70 |          676 |
+
+Moreover, data of the same date in the source xetra bucket is separatd into multiple pieces (objects). For example, for trading data in 2017-08-01 we need to concat the following objects:
+
+```bash
+$ aws s3 ls deutsche-boerse-xetra-pds/2017-08-01/ --no-sign-request
+2018-04-04 12:58:38        136 2017-08-01_BINS_XETR00.csv
+2018-04-04 12:58:38        136 2017-08-01_BINS_XETR01.csv
+2018-04-04 12:58:38        136 2017-08-01_BINS_XETR02.csv
+2018-04-04 12:58:38        136 2017-08-01_BINS_XETR03.csv
+2018-04-04 12:58:38        136 2017-08-01_BINS_XETR04.csv
+2018-04-04 12:58:38        136 2017-08-01_BINS_XETR05.csv
+2018-04-04 12:58:38        136 2017-08-01_BINS_XETR06.csv
+2018-04-04 12:58:38    1016188 2017-08-01_BINS_XETR07.csv
+2018-04-04 12:58:39     934078 2017-08-01_BINS_XETR08.csv
+2018-04-04 12:58:38     863130 2017-08-01_BINS_XETR09.csv
+2018-04-04 12:58:41     805186 2017-08-01_BINS_XETR10.csv
+2018-04-04 12:58:38     749942 2017-08-01_BINS_XETR11.csv
+2018-04-04 12:58:40     788177 2017-08-01_BINS_XETR12.csv
+2018-04-04 12:58:40    1054569 2017-08-01_BINS_XETR13.csv
+2018-04-04 12:58:39    1145654 2017-08-01_BINS_XETR14.csv
+2018-04-04 12:58:41     712217 2017-08-01_BINS_XETR15.csv
+2018-04-04 12:58:41        136 2017-08-01_BINS_XETR16.csv
+2018-04-04 12:58:41        136 2017-08-01_BINS_XETR17.csv
+2018-04-04 12:58:41        136 2017-08-01_BINS_XETR18.csv
+2018-04-04 12:58:40        886 2017-08-01_BINS_XETR19.csv
+2018-04-04 12:58:41        136 2017-08-01_BINS_XETR20.csv
+2018-04-04 12:58:41        136 2017-08-01_BINS_XETR21.csv
+2018-04-04 12:58:41        136 2017-08-01_BINS_XETR22.csv
+2018-04-04 12:58:41        136 2017-08-01_BINS_XETR23.csv
+```
+
+Therefore, there is a need to extract daily data into a single table, apply transformations, and save the results in a target s3 bucket for future analysis.
+
 ## Usage
 
 ```bash
 python ./run.py configs/config.yaml
 ```
 
-Example source data
-
-```
-#> # A tibble: 193,095 x 8
-#>    ISIN         Date       Time   StartPrice MaxPrice MinPrice EndPrice TradedVolume
-#>    <chr>        <date>     <time>      <dbl>    <dbl>    <dbl>    <dbl>        <dbl>
-#>  1 AT0000A0E9W5 2021-09-16 07:00        22.5     22.5     22.5     22.5         3279
-#>  2 DE000A0DJ6J9 2021-09-16 07:00        37.6     37.6     37.5     37.5         1281
-#>  3 DE000A0D6554 2021-09-16 07:00        15.2     15.2     15.1     15.1         7066
-#>  4 DE000A0D9PT0 2021-09-16 07:00       188.     188      188.     188            374
-#>  5 DE000A0HN5C6 2021-09-16 07:00        53.0     53.0     53.0     53.0         9971
-#>  6 DE000A0JL9W6 2021-09-16 07:00        53.8     53.8     53.4     53.7          676
-#>  7 DE000A0LD2U1 2021-09-16 07:00        16.0     16.0     16.0     16.0         4160
-#>  8 DE000A0LD6E6 2021-09-16 07:00        88.9     89.2     88.8     88.9         1098
-#>  9 DE000A0S8488 2021-09-16 07:00        18.9     18.9     18.7     18.8         7719
-#> 10 DE000A0WMPJ6 2021-09-16 07:00        24.7     24.7     24.7     24.7         2211
-#> # ... with 193,085 more rows
-```
-
 Example processed data
 
-```
-#> # A tibble: 3,050 x 7
-#>    isin      opening_price closing_price min_price max_price traded_volume   pct
-#>    <chr>             <dbl>         <dbl>     <dbl>     <dbl>         <int> <dbl>
-#>  1 AT00000F~          9.65          9.38      9.35      9.65          1324  0.52
-#>  2 AT000060~         21.5          21.4      21.3      21.5           2486  0.37
-#>  3 AT000060~         17.2          17.2      17.1      17.2            256  0.47
-#>  4 AT000064~        103.          102.      101.      103.             429 -1.71
-#>  5 AT000065~         35.2          35.0      35.0      35.5            180  0.2
-#>  6 AT000065~         20.6          20.8      20.5      20.8            600  0.49
-#>  7 AT000072~          7.57          7.35      7.35      7.57           203  2.85
-#>  8 AT000073~         48.9          47.9      47.9      48.9            318 -0.16
-#>  9 AT000074~         25.1          24.5      24.5      25.1            100  1.41
-#> 10 AT000074~         48.6          50.1      48.6      50.6          14358  0.68
-#> # ... with 3,040 more rows
-```
+| isin         | opening_price | closing_price | min_price | max_price | traded_volume |   pct |
+| :----------- | ------------: | ------------: | --------: | --------: | ------------: | ----: |
+| AT00000FACC2 |          9.65 |          9.38 |      9.35 |      9.65 |          1324 |  0.52 |
+| AT0000606306 |         21.46 |         21.40 |     21.26 |     21.46 |          2486 |  0.37 |
+| AT0000609607 |         17.24 |         17.18 |     17.06 |     17.24 |           256 |  0.47 |
+| AT0000644505 |        103.20 |        101.80 |    101.20 |    103.20 |           429 | -1.71 |
+| AT0000652011 |         35.17 |         34.99 |     34.96 |     35.49 |           180 |  0.20 |
+| AT0000652250 |         20.60 |         20.75 |     20.50 |     20.75 |           600 |  0.49 |
 
 A meta file is included as a caching layer and saved to s3 target bucket. Whenever the job for the requested day is finished, the meta file is also updated to track processed dates, for example:
 
