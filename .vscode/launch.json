@@ -1,0 +1,17 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "run xetra jobs",
+      "type": "python",
+      "python.pythonPath": "d:/xetra/xetra_jobs/venv/Scripts/python.exe",
+      "request": "launch",
+      "program": "d:/xetra/xetra_jobs/run.py",
+      "console": "integratedTerminal",
+      "args": ["d:/xetra/xetra_jobs/configs/config.yaml"]
+    }
+  ]
+}

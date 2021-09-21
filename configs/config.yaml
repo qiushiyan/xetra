@@ -9,7 +9,7 @@ s3:
 
 # configuration specific to the source
 source:
-  src_input_date: "2021-09-16"
+  src_input_date: "2021-09-15"
   src_input_date_format: "%Y-%m-%d"
   src_columns:
     [

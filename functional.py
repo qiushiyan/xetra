@@ -117,5 +117,5 @@ def load(bucket, df, date):
 s3 = boto3.resource('s3')
 bucket = s3.Bucket(source_bucket)
 
-dates = list_dates("2021-09-10")
+dates = list_dates("2021-09-17")
 df = collect_df(bucket, dates)
