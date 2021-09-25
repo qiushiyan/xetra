@@ -53,9 +53,19 @@ Therefore, there is a need to extract daily data into a single table, apply tran
 
 ## Usage
 
+from the command line
+
 ```bash
 python ./run.py --config configs/config.yaml
 ```
+
+from api endpoints
+
+```
+flask run
+```
+
+and then navigate to http://127.0.0.1:5000/daily, add date as following subroute, e.g., http://127.0.0.1:5000/daily/20210917
 
 Example processed data
 
