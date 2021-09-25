@@ -7,16 +7,16 @@ ENV PIP_NO_CACHE_DIR=yes
 ENV PYTHONDONTWRITEBYTECODE 1
 
 # set PYTHONPATH
-ENV PYTHONPATH "${PYTHONPATH}:/workspace/"
+ENV PYTHONPATH "${PYTHONPATH}:/app/"
 
 # Initializing new working directory
-WORKDIR /workspace
+WORKDIR /app
 
 # Transferring the code and essential data
 COPY xetra_jobs ./xetra_jobs
 COPY requirments.txt ./requirments.txt
-COPY run.py ./run.py
+COPY app.py ./app.py
 COPY configs ./configs
 
 RUN pip3 install -r requirments.txt
-CMD ["python3", "./run.py"]
+CMD ["python3", "-m", "flask", "run", "--host=0.0.0.0"]
